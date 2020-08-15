@@ -9,7 +9,7 @@ In an environment with >50k rules in nftables (basically from Calico) we can see
 
 * Running the nft from the system
 ```
-time nft list ruleset > /dev/null
+time sudo nft list ruleset > /dev/null
 
 real    0m6,814s
 user    0m2,774s
@@ -17,7 +17,7 @@ sys     0m4,023s
 
 ``` 
 
-* Running this program, that basically does the same and I really don't know if this is the right way (probably using goroutines for each chain would make it FASTER but who knows ¯\_(ツ)_/¯
+* Running this program, that basically does the same and I really don't know if this is the right way (probably using goroutines for each chain would make it FASTER but who knows ¯\\_(ツ)_/¯
 
 ```
 time sudo output/iptables-nft-go >/dev/null
