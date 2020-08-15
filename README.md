@@ -17,7 +17,7 @@ sys     0m4,023s
 
 ``` 
 
-* Running this program, that basically does the same and I really don't know if this is the right way (probably using goroutines for each chain would make it FASTER but who knows ¯\\_(ツ)_/¯
+* Running this program, that basically does the same and I really don't know if this is the right way (probably using goroutines for each chain would make it FASTER but who knows ¯\\\_(ツ)\_/¯
 
 ```
 time sudo output/iptables-nft-go >/dev/null
