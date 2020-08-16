@@ -9,28 +9,35 @@ In an environment with >50k rules in nftables (basically from Calico) we can see
 
 * Running the nft from the system
 ```
-time sudo nft list ruleset > /dev/null
+time nft list ruleset > /dev/null
 
-real    0m6,814s
-user    0m2,774s
-sys     0m4,023s
-
+real    0m7,211s
+user    0m2,930s
+sys     0m4,276s
 ``` 
 
-* Running this program, that basically does the same and I really don't know if this is the right way (probably using goroutines for each chain would make it FASTER but who knows ¯\\\_(ツ)\_/¯
+* [TEST 1](test1/) - Running this program, that basically does the same as nft list ruleset without any optimization ¯\\\_(ツ)\_/¯ - IT IS A 80% IMPROVEMENT, WITH 100% IN KERNEL TIME :)
 
 ```
-time sudo output/iptables-nft-go >/dev/null
+time test1/output/iptables-nft-go  > /dev/null
 
-real    0m3,841s
-user    0m4,744s
-sys     0m1,796s
+real    0m4,021s
+user    0m4,145s
+sys     0m2,085s
 ```
 
-We can see that Go spends half the time in Kernel/Netlink communication that C. This still can be improved and needs some profilling.
+* [TEST 2](test2/) - Go routines + bytes.Buffer for string concatenation, thanks to @amandahla who is THE LIGHT OF MY LIFE :)
+
+```
+time test2/output/iptables-nft-go  > /dev/null
+
+real    0m1,518s
+user    0m2,519s
+sys     0m1,175s
+```
+
+THIS IS 1/4 OF THE ORIGINAL TIME (400% OF IMPROVEMENT) 
 
 # TODO
 * Convert the structures, integers, etc etc to readable things (as the nft list ruleset)
 * Our worst case is iptables-nft-save, so why not write a iptables-nft-save in Go and try to restore with the original C program
-
-

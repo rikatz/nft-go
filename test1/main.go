@@ -2,11 +2,22 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"runtime/pprof"
 
 	"github.com/google/nftables"
 )
 
 func main() {
+
+	f, err := os.Create("cpu.pprof")
+	if err != nil {
+		log.Fatal(err)
+	}
+	pprof.StartCPUProfile(f)
+	defer pprof.StopCPUProfile()
+
 	c := &nftables.Conn{}
 
 	dump := make(map[string][]*nftables.Chain)
