@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/google/nftables"
+	"golang.org/x/sys/unix"
 )
 
 var c *nftables.Conn
@@ -65,10 +67,15 @@ func getRule(chain *nftables.Chain) string {
 
 	if len(chain.Type) > 0 {
 		msg.WriteString("\n\t\ttype " + string(chain.Type) + " ")
-		msg.WriteString("hook " + fmt.Sprint(chain.Hooknum) + " ")
+
+		hook, err := ChainHookIntToStr(int(chain.Hooknum))
+		if err != nil {
+			panic(err)
+		}
+		msg.WriteString("hook " + hook + " ")
 		msg.WriteString("priority " + fmt.Sprint(chain.Priority) + "; ")
-		pol := *chain.Policy
-		msg.WriteString("policy " + fmt.Sprint(pol) + ";")
+		//pol := *chain.Policy
+		msg.WriteString("policy " + ChainPolicyIntToStr(int(*chain.Policy)) + ";")
 	}
 
 	rules, err := c.GetRule(chain.Table, chain)
@@ -85,4 +92,32 @@ func getRule(chain *nftables.Chain) string {
 	msg.WriteString("\n\t}\n")
 	return msg.String()
 
+}
+
+// ALL BELOW IS GOING TO BE MOVED TO A HELPERS PACKAGE :)
+
+// ChainHookIntToStr converts an interger hook into its equivalent string
+func ChainHookIntToStr(hook int) (string, error) {
+	switch hook {
+	case unix.NF_INET_PRE_ROUTING:
+		return "prerouting", nil
+	case unix.NF_INET_LOCAL_IN:
+		return "input", nil
+	case unix.NF_INET_FORWARD:
+		return "forward", nil
+	case unix.NF_INET_LOCAL_OUT:
+		return "output", nil
+	case unix.NF_INET_POST_ROUTING:
+		return "postrouting", nil
+	default:
+		return "", errors.New("Invalid hook detected")
+	}
+}
+
+// ChainPolicyIntToStr converts an integer policy into its equivalent string
+func ChainPolicyIntToStr(hook int) string {
+	if hook == 0 {
+		return "drop"
+	}
+	return "accept"
 }
